@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> IM </title>
+
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
+    <link rel="stylesheet" type="text/css" href="css/jquery-ui.css"/>
+    <link rel="stylesheet" type="text/css" href="css/webim_demo.css"/>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap-table.css"/>
+    <style>
+        .ui-menu {
+            width: 150px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="aio" id="webim_demo">
+    <div class="titlebar">
+        <img id="p_my_face"/>
+        <p id="t_my_name"></p>
+        <ul id="t_my_menu">
+            <li>菜单
+                <ul>
+                    <li>最近联系人
+                        <ul>
+                            <li id="getRecentContactListMenu" onclick="getRecentContactList()">最近联系人</li>
+                        </ul>
+                    </li>
+                    <li>好友申请
+                        <ul>
+                            <li id="getPendencyMenu" onclick="getPendency(false)">查看好友申请</li>
+                        </ul>
+                    </li>
+                    <li>好友
+                        <ul>
+                            <li id="searchProfileByUserIdMenu" onclick="searchProfileByUserIdClick()">搜索用户</li>
+                            <li id="getAllFriendMenu" onclick="getMyFriend()">我的好友</li>
+                        </ul>
+                    </li>
+                    <li>黑名单
+                        <ul>
+                            <li id="getBlackListMenu" onclick="getBlackList()">我的黑名单</li>
+                        </ul>
+                    </li>
+                    <li>群组申请
+                        <ul>
+                            <li id="getApplyJoinGroupPendencyMenu" onclick="getApplyJoinGroupPendency()">查看加群申请</li>
+                        </ul>
+                    </li>
+                    <li>群组
+                        <ul>
+                            <li id="searchGroupByNameMenu" onclick="searchGroupByNameMenuClick()">搜索群组(按名称)</li>
+                            <li id="searchGroupMenu" onclick="searchGroupMenuClick()">搜索群组(按ID)</li>
+                            <li id="createGroupMenu" onclick="createGroupMenuClick()">创建群组</li>
+                            <li id="getMyGroupMenu" onclick="getMyGroup()">我的群组</li>
+                            <li id="sendCustomGroupNofifyMenu" onclick="showSendCustomGroupNotifyDialog()">
+                                发送群自定义通知
+                            </li>
+                        </ul>
+                    </li>
+                    <li>系统消息
+                        <ul>
+                            <li id="getMyGroupSystemsMenu" onclick="getMyGroupSystemMsgs()">我的群组系统消息</li>
+                            <li id="getMyFriendSystemsMenu" onclick="getMyFriendSystemMsgs()">我的好友系统消息</li>
+                            <li id="getMyProfileSystemsMenu" onclick="getMyProfileSystemMsgs()">我的资料系统消息</li>
+                        </ul>
+                    </li>
+                    <li>设置
+                        <ul>
+                            <li id="setProfilePortraitMenu" onclick="setProfilePortraitClick()">个人资料</li>
+                            <li id="quitMenu" onclick="quitClick()">退出</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <div class="sesspart">
+        <div class="accordion" id="accordionContact">
+            <div class="accordion-group">
+                <div class="accordion-heading">
+                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordionContact"
+                       href="#collapseRecentSession">
+                        最近联系人
+                    </a>
+                </div>
+                <div id="collapseRecentSession" class="accordion-body collapse in">
+                    <div class="sesslist">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="chatpart">
+        <div class="msgflow">
+        </div>
+
+        <span id="msg_end" style="overflow:hidden"></span>
+
+        <div class="editbar">
+            <a class="chat02_title_btn ctb01" title="选择表情" onclick="showEmotionDialog()"></a>
+            <a class="chat02_title_btn ctb03" title="选择图片" onclick="selectPicClick()" href="#"> </a>
+            <a class="chat02_title_btn ctb05" title="选择文件" onclick="selectFileClick()" href="#"> </a>
+            <a class="chat02_title_btn ctb04" title="发送自定义消息" onclick="showEditCustomMsgDialog()" href="#"> </a>
+
+            <div id="wl_faces_box" class="wl_faces_box">
+                <div class="wl_faces_content">
+                    <div class="title">
+                        <ul>
+                            <li class="title_name">常用表情</li>
+                            <li class="wl_faces_close"><span onclick='turnoffFaces_box()'>&nbsp;</span></li>
+                        </ul>
+                    </div>
+                    <div id="wl_faces_main" class="wl_faces_main">
+                        <ul id="emotionUL">
+                        </ul>
+                    </div>
+                </div>
+                <div class="wlf_icon"></div>
+            </div>
+        </div>
+        <textarea class="msgedit" id="send_msg_text" onkeydown="onTextareaKeyDown()" cols="82" rows="5"></textarea>
+
+        <div class="sendbar">
+            <button type="button" class="sendbtn" onclick="onSendMsg()">发送</button>
+            <button type="button" class="closebtn" onclick="onClose()">关闭</button>
+        </div>
+    </div>
+
+
+    <!-- 模态框（Modal） -->
+    <div class="modal fade" id="handle_invite_join_group_request" tabindex="-1" role="dialog"
+         aria-labelledby="handle_invite_join_group_request_label" aria-hidden="true" data-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×
+                    </button>
+                    <h4 class="modal-title" id="handle_invite_join_group_request_label">
+                        处理被邀请进群申请
+                    </h4>
+                </div>
+                <div class="modal-body">
+
+                    <form class="form-horizontal" role="form" onkeydown="if(event.keyCode==13)return false;">
+                        <input type="hidden" id="hijg_authentication">
+                        <input type="hidden" id="hijg_msg_key">
+                        <input type="hidden" id="hijg_user_defined_field">
+
+                        <input type="hidden" id="hijg_from_account">
+                        <input type="hidden" id="hijg_msg_seq">
+                        <input type="hidden" id="hijg_msg_random">
+
+                        <div class="form-group">
+                            <label for="hijg_group_id" class="col-sm-2 control-label">群ID</label>
+
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="hijg_group_id" placeholder=""
+                                       readonly="readonly">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="hijg_to_account" class="col-sm-2 control-label">邀请人</label>
+
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="hijg_to_account" placeholder=""
+                                       readonly="readonly">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="hijg_action_radio" class="col-sm-2 control-label">操作</label>
+
+                            <div class="col-sm-10">
+                                <label class="radio-inline">
+                                    <input type="radio" name="hijg_action_radio" id="hijg_action_agree_radio"
+                                           value="Agree" checked> 同意
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="hijg_action_radio" id="hijg_action_reject_radio"
+                                           value="Reject"> 拒绝
+                                </label>
+
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="hijg_approval_msg" class="col-sm-2 control-label">附言</label>
+
+                            <div class="col-sm-10">
+                                <textarea class="form-control" id="hijg_approval_msg" rows="3"></textarea>
+
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        关闭
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="handleInviteJoinGroupRequest()">
+                        提交
+                    </button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+
+</div>
+
+
+<div class="modal" id="select_app_dialog" tabindex="-1" aria-hidden="true" aria-labelledby="select_app_dialog_label">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="select_app_dialog_label">
+                    ROBOT IM
+                </h4>
+            </div>
+            <div class="modal_body">
+                <form class="form-horizontal" role="form" onkeydown="if (event.keyCode==13)return false; ">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label"></label>
+                        <!--<div class="col-sm-5">-->
+                        <!--<label class="radio-inline">-->
+                        <!--<input type="radio" name="app_type_radio" id="at_demo_radio" value="1"-->
+                        <!--onclick="changeAppType(this)" checked>测试应用-->
+                        <!--</label>-->
+                        <!--</div>-->
+                        <!--<div class="col-sm-5">-->
+                        <!--<label class="radio-inline">-->
+                        <!--<input type="radio" name="app_type_radio" id="at_myself_radio" value="0"-->
+                        <!--onclick="changeAppType(this)">自建应用-->
+                        <!--</label>-->
+                        <!--</div>-->
+                        <!--<div class="from-group">-->
+                        <!--<label class="col-sm-2 control-label"></label>-->
+                        <!--<div class="col-sm-9">-->
+                        <!--<label id="demo_type_desc">无需注册腾讯云帐号直接使用，适合只需快速体验开放IM的用户</label>-->
+                        <!--<label id="myself_type_desc">需注册腾讯云官帐号，并创建应用获取SdkAppId，适合需在Demo基础上进行修改调试的用户。-->
+                        <!--<a href="http://console.qcloud.com/avc/" id="qcloudLink">现在创建>></a>-->
+                        <!--</label>-->
+                        <!--</div>-->
+                        <!--</div>-->
+                        <div class="form-group" id="sdkAppIdDiv">
+                            <!--<label class="col-sm-2 control-lable"></label>-->
+                            <label for="account_type" class="col-sm-2 control-label">SdkAppId:</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" id="sdk_app_id" placeholder="请输入SdkAppId"
+                                       value="">
+                            </div>
+                        </div>
+                        <div class="form-group" id="accountTypeDiv">
+                            <label class="col-sm-2 control-lable"></label>
+                            <label for="account_type" class="col-sm-2 control-label">AccountType:</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" id="account_type" placeholder="请输入AccountType"
+                                       value="">
+                            </div>
+                        </div>
+                        <div class="form-group" id="accountModeDiv" style="display: none">
+                            <label class="col-sm-2 control-label"></label>
+                            <label for="account_type" class="col-sm-2 control-label">集成模式：</label>
+                            <label for="account_type" class="col-sm-2 control-label">托管模式</label>
+                            <!--<div class="col-sm-6" style="padding-top: 5px">-->
+                            <!--<input type="radio" name="accountMode" value="0">独立模式-->
+                            <!--<input type="radio" name="accountMode" value="1" checked>托管模式-->
+                            <!--</div>-->
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="model-footer">
+                <button type="button" class="btn btn-primary" onclick="selectApp()">确定</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<script type="text/javascript" src="js/lib/jquery/jquery.js"></script>
+<script type="text/javascript" src="js/lib/jquery/jquery-ui.js"></script>
+<script type="text/javascript" src="js/lib/lodash.min.js"></script>
+<script type="text/javascript" src="js/lib/bootstrap/bootstrap.js"></script>
+<!--<script type="text/javascript" src="js/lib/bootstrap/bootstrap-table.js"></script>-->
+<!--<script type="text/javascript" src="js/lib/bootstrap/bootstrap-collapse.js"></script>-->
+<!--<script type="text/javascript" src="js/lib/xss.js"></script>-->
+<!--web im sdk-->
+<script type="text/javascript" src="sdk/webim.js"></script>
+<!--<script type="text/javascript" src="sdk/webim.min.js"></script>-->
+<script type="text/javascript" src="sdk/json2.js"></script>
+<!--用于获取文件MD5 js api(发送图片时用到)-->
+<script type="text/javascript" src="js/lib/md5/spark-md5.js"></script>
+
+<!--TLS web sdk(只用于托管模式，独立模式不用引入)-->
+<script type="text/javascript" src="https://tls.qcloud.com/libs/api.min.js"></script>
+
+<!--用于获取文件MD5 js api(发送图片时用到)-->
+<script type="text/javascript" src="js/lib/md5/spark-md5.js"></script>
+
+<!--web im sdk-->
+<script type="text/javascript" src="sdk/webim.js"></script>
+<!--<script type="text/javascript" src="sdk/webim.min.js"></script>-->
+<script type="text/javascript" src="sdk/json2.js"></script>
+
+<!--web im sdk 登录 示例代码-->
+<script type="text/javascript" src="js/login/login.js"></script>
+<!--web im sdk 登出 示例代码-->
+<script type="text/javascript" src="js/logout/logout.js"></script>
+<!--web im 解析一条消息 示例代码-->
+<script type="text/javascript" src="js/common/show_one_msg.js"></script>
+<!--web im demo 基本逻辑-->
+<script type="text/javascript" src="js/base.js"></script>
+<!--web im 监听新消息(c2c或群) 示例代码-->
+<script type="text/javascript" src="js/msg/receive_new_msg.js"></script>
+
+
+<script type="text/javascript">
+    //帐号模式，0-表示独立模式，1-表示托管模式
+    var accountMode = 1;
+    //官方 demo appid
+    var sdkAppID = 1400043768;
+    var accountType = 17967;
+
+    var loginInfo = {
+        'sdkAppID': sdkAppID, //用户所属应用id,必填
+        'identifier': null, //当前用户ID,必须是否字符串类型，必填
+        'accountType': accountType, //用户所属应用帐号类型，必填
+        'userSig': null, //当前用户身份凭证，必须是字符串类型，必填
+        'identifierNick': null, //当前用户昵称，不用填写，登录接口会返回用户的昵称，如果没有设置，则返回用户的id
+        'headurl': 'img/me.jpg' //当前用户默认头像，选填，如果设置过头像，则可以通过拉取个人资料接口来得到头像信息
+    };
+
+    var selType = webim.SESSION_TYPE.C2C;
+    var selToID = null; //当前选中聊天id（当聊天类型为私聊时，该值为好友帐号，否则为群号）
+    var selSess = null; //当前聊天会话对象
+
+    //默认好友头像
+    var friendHeadUrl = 'img/friend.jpg'; //仅demo使用，用于没有设置过头像的好友
+    //默认群头像
+    var groupHeadUrl = 'img/group.jpg'; //仅demo使用，用于没有设置过群头像的情况
+
+    var onConnNotify = function (resp) {
+        var info;
+        switch (resp.ErrorCode) {
+            case webim.CONNECTION_STATUS.ON:
+                webim.Log.warn('建立连接成功: ' + resp.ErrorInfo);
+                break;
+            case webim.CONNECTION_STATUS.OFF:
+                info = '连接已断开，无法收到新消息，请检查下你的网络是否正常: ' + resp.ErrorInfo;
+                webim.Log.warn(info);
+                break;
+            default:
+                webim.Log.error('未知连接状态: =' + resp.ErrorInfo);
+                break;
+        }
+    };
+
+    function jsonpCallback(rspData) {
+        webim.setJsonpLastRspData(rspData);
+    }
+
+    var onC2cEventNotifys = {
+        "92": onMsgReadedNotify, //消息已读通知,
+        "96": onMultipleDeviceKickedOut
+    };
+
+    var listeners = {
+        "onConnNotify": onConnNotify //监听连接状态回调变化事件,必填
+        ,
+        "jsonpCallback": jsonpCallback //IE9(含)以下浏览器用到的jsonp回调函数，
+        ,
+        "onMsgNotify": onMsgNotify //监听新消息(私聊，普通群(非直播聊天室)消息，全员推送消息)事件，必填
+        ,
+        "onBigGroupMsgNotify": onBigGroupMsgNotify //监听新消息(直播聊天室)事件，直播场景下必填
+        ,
+        // "onGroupSystemNotifys": onGroupSystemNotifys //监听（多终端同步）群系统消息事件，如果不需要监听，可不填
+        // ,
+        // "onGroupInfoChangeNotify": onGroupInfoChangeNotify //监听群资料变化事件，选填
+        // ,
+        // "onFriendSystemNotifys": onFriendSystemNotifys //监听好友系统通知事件，选填
+        // ,
+        // "onProfileSystemNotifys": onProfileSystemNotifys //监听资料系统（自己或好友）通知事件，选填
+        // ,
+        "onKickedEventCall": onKickedEventCall //被其他登录实例踢下线
+        ,
+        "onC2cEventNotifys": onC2cEventNotifys //监听C2C系统消息通道
+        ,
+        "onAppliedDownloadUrl": onAppliedDownloadUrl //申请文件/音频下载地址的回调
+    };
+
+    var isAccessFormalEnv = true; //是否访问正式环境
+    var isLogOn = false; //是否开启sdk在控制台打印日志
+
+    //初始化时，其他对象，选填
+    var options = {
+        'isAccessFormalEnv': isAccessFormalEnv, //是否访问正式环境，默认访问正式，选填
+        'isLogOn': isLogOn //是否开启控制台打印日志,默认开启，选填
+    }
+
+    $('#demo_type_desc').hide();
+    $('#myself_type_desc').show();
+    $('#sdkAppIdDiv').show();
+    $('#accountTypeDiv').show();
+    $('#accountModeDiv').show();
+
+    if (accountMode == 1) {//托管模式
+        //判断是否已经拿到临时身份凭证
+        if (webim.Tool.getQueryString('tmpsig')) {
+            if (loginInfo.identifier == null) {
+                webim.Log.info('start fetchUserSig')
+                //获取正式身份凭证，成功后会回调tlsGetUserSig(res)函数
+                //业务需要定义回调函数tlsGetUserSig(res)，判断res.ErrorCode，当为WebBigGroupIM.TLS_ERROR_CODE.OK时则表示成功，为其他值，表示失败。
+                //获取正式身份凭证，成功后会回调tlsGetUserSig(res)函数
+                TLSHelper.fetchUserSig();
+            }
+        } else {
+            if (loginInfo.identifier == null) {
+                //弹出选择应用类型对话框
+                // $('#select_app_dialog').modal('show');
+                // $("body").css("background-color", 'white');
+                selectApp()
+            }
+        }
+
+    } else { //独立模式
+        //login_dialog显示
+        // $('#login_dialog').modal('show');
+    }
+
+    var msgflow = document.getElementsByClassName("msgflow")[0];
+    var bindScrollHistoryEvent = {
+        init: function () {
+            msgflow.onscroll = function () {
+                if (msgflow.scrollTop == 0) {
+                    msgflow.scrollTop = 10;
+                    if (selType == webim.SESSION_TYPE.C2C) {
+                        getPrePageC2CHistoryMsgs();
+                    } else {
+                        getPrePageGroupHistoryMsgs();
+                    }
+                }
+            }
+        },
+        reset: function () {
+            msgflow.onscroll = null;
+        }
+    };
+
+</script>
+
+
+</body>
+
+
+</html>

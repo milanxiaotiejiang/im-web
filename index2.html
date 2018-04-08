@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<div class="aio" id="webim_demo">
+    <div class="titlebar">
+        <img id="p_my_face"/>
+        <p id="t_my_name"></p>
+        <ul id="t_my_menu">
+            <li>菜单
+                <ul>
+                    <li>最近联系人
+                        <ul>
+                            <li id="getRecentContactListMenu" onclick="getRecentContactList()">最近联系人</li>
+                        </ul>
+                    </li>
+                    <li>好友申请
+                        <ul>
+                            <li id="getPendencyMenu" onclick="getPendency(false)">查看好友申请</li>
+                        </ul>
+                    </li>
+                    <li>好友
+                        <ul>
+                            <li id="searchProfileByUserIdMenu" onclick="searchProfileByUserIdClick()">搜索用户</li>
+                            <li id="getAllFriendMenu" onclick="getMyFriend()">我的好友</li>
+                        </ul>
+                    </li>
+                    <li>黑名单
+                        <ul>
+                            <li id="getBlackListMenu" onclick="getBlackList()">我的黑名单</li>
+                        </ul>
+                    </li>
+                    <li>群组申请
+                        <ul>
+                            <li id="getApplyJoinGroupPendencyMenu" onclick="getApplyJoinGroupPendency()">查看加群申请</li>
+                        </ul>
+                    </li>
+                    <li>群组
+                        <ul>
+                            <li id="searchGroupByNameMenu" onclick="searchGroupByNameMenuClick()">搜索群组(按名称)</li>
+                            <li id="searchGroupMenu" onclick="searchGroupMenuClick()">搜索群组(按ID)</li>
+                            <li id="createGroupMenu" onclick="createGroupMenuClick()">创建群组</li>
+                            <li id="getMyGroupMenu" onclick="getMyGroup()">我的群组</li>
+                            <li id="sendCustomGroupNofifyMenu" onclick="showSendCustomGroupNotifyDialog()">
+                                发送群自定义通知
+                            </li>
+                        </ul>
+                    </li>
+                    <li>系统消息
+                        <ul>
+                            <li id="getMyGroupSystemsMenu" onclick="getMyGroupSystemMsgs()">我的群组系统消息</li>
+                            <li id="getMyFriendSystemsMenu" onclick="getMyFriendSystemMsgs()">我的好友系统消息</li>
+                            <li id="getMyProfileSystemsMenu" onclick="getMyProfileSystemMsgs()">我的资料系统消息</li>
+                        </ul>
+                    </li>
+                    <li>设置
+                        <ul>
+                            <li id="setProfilePortraitMenu" onclick="setProfilePortraitClick()">个人资料</li>
+                            <li id="quitMenu" onclick="quitClick()">退出</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <div class="sesspart">
+        <div class="accordion" id="accordionContact">
+            <div class="accordion-group">
+                <div class="accordion-heading">
+                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordionContact"
+                       href="#collapseRecentSession">
+                        最近联系人
+                    </a>
+                </div>
+                <div id="collapseRecentSession" class="accordion-body collapse in">
+                    <div class="sesslist">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="chatpart">
+        <div class="msgflow">
+        </div>
+
+        <span id="msg_end" style="overflow:hidden"></span>
+
+        <div class="editbar">
+            <a class="chat02_title_btn ctb01" title="选择表情" onclick="showEmotionDialog()"></a>
+            <a class="chat02_title_btn ctb03" title="选择图片" onclick="selectPicClick()" href="#"> </a>
+            <a class="chat02_title_btn ctb05" title="选择文件" onclick="selectFileClick()" href="#"> </a>
+            <a class="chat02_title_btn ctb04" title="发送自定义消息" onclick="showEditCustomMsgDialog()" href="#"> </a>
+
+            <div id="wl_faces_box" class="wl_faces_box">
+                <div class="wl_faces_content">
+                    <div class="title">
+                        <ul>
+                            <li class="title_name">常用表情</li>
+                            <li class="wl_faces_close"><span onclick='turnoffFaces_box()'>&nbsp;</span></li>
+                        </ul>
+                    </div>
+                    <div id="wl_faces_main" class="wl_faces_main">
+                        <ul id="emotionUL">
+                        </ul>
+                    </div>
+                </div>
+                <div class="wlf_icon"></div>
+            </div>
+        </div>
+        <textarea class="msgedit" id="send_msg_text" onkeydown="onTextareaKeyDown()" cols="82" rows="5"></textarea>
+
+        <div class="sendbar">
+            <button type="button" class="sendbtn" onclick="onSendMsg()">发送</button>
+            <button type="button" class="closebtn" onclick="onClose()">关闭</button>
+        </div>
+    </div>
+
+
+    <!-- 模态框（Modal） -->
+    <div class="modal fade" id="handle_invite_join_group_request" tabindex="-1" role="dialog"
+         aria-labelledby="handle_invite_join_group_request_label" aria-hidden="true" data-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×
+                    </button>
+                    <h4 class="modal-title" id="handle_invite_join_group_request_label">
+                        处理被邀请进群申请
+                    </h4>
+                </div>
+                <div class="modal-body">
+
+                    <form class="form-horizontal" role="form" onkeydown="if(event.keyCode==13)return false;">
+                        <input type="hidden" id="hijg_authentication">
+                        <input type="hidden" id="hijg_msg_key">
+                        <input type="hidden" id="hijg_user_defined_field">
+
+                        <input type="hidden" id="hijg_from_account">
+                        <input type="hidden" id="hijg_msg_seq">
+                        <input type="hidden" id="hijg_msg_random">
+
+                        <div class="form-group">
+                            <label for="hijg_group_id" class="col-sm-2 control-label">群ID</label>
+
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="hijg_group_id" placeholder=""
+                                       readonly="readonly">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="hijg_to_account" class="col-sm-2 control-label">邀请人</label>
+
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="hijg_to_account" placeholder=""
+                                       readonly="readonly">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="hijg_action_radio" class="col-sm-2 control-label">操作</label>
+
+                            <div class="col-sm-10">
+                                <label class="radio-inline">
+                                    <input type="radio" name="hijg_action_radio" id="hijg_action_agree_radio"
+                                           value="Agree" checked> 同意
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="hijg_action_radio" id="hijg_action_reject_radio"
+                                           value="Reject"> 拒绝
+                                </label>
+
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="hijg_approval_msg" class="col-sm-2 control-label">附言</label>
+
+                            <div class="col-sm-10">
+                                <textarea class="form-control" id="hijg_approval_msg" rows="3"></textarea>
+
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        关闭
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="handleInviteJoinGroupRequest()">
+                        提交
+                    </button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+
+</div>
+
+</body>
+</html>
